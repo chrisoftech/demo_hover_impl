@@ -1,31 +1,44 @@
 package com.example.batterylevel;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.os.Bundle;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.hover.sdk.api.Hover;
 import com.hover.sdk.api.HoverParameters;
 
-import java.util.Map;
-
 import io.flutter.Log;
-import io.flutter.embedding.android.FlutterActivity;
-import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugins.GeneratedPluginRegistrant;
 
 // import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.room.Transaction;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugins.GeneratedPluginRegistrant;
+
 public class MainActivity extends FlutterActivity {
 
-    public static final String CHANNEL_HOVER = "samples.flutter.dev/hover";
-
-    private BinaryMessenger messenger;
+    private static final String CHANNEL_HOVER = "samples.flutter.dev/hover";
 
     private void sendMoneyToIndividual(String phoneNumber, String amount, String reference) {
         try {
@@ -45,31 +58,10 @@ public class MainActivity extends FlutterActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        String hover = intent.getStringExtra(TransactionReceiver.HOVER_TRANSACTION);
-
-        if (hover != null) {
-            // deserialize hover into your data
-            // then send using the channel
-            sendData(null);
-        }
-
-        super.onNewIntent(intent);
-    }
-
-    private void sendData(Object object) {
-        MethodChannel channel = new MethodChannel(messenger, MainActivity.CHANNEL_HOVER);
-
-        channel.invokeMethod("someMethod", "someValue");
-    }
-
-    @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
 
-        messenger = flutterEngine.getDartExecutor().getBinaryMessenger();
-
-        new MethodChannel(messenger, CHANNEL_HOVER)
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_HOVER)
                 .setMethodCallHandler((call, result) -> {
                     // Note: this method is invoked on the main thread.
                     if (call.method.equals("sendMoneyToIndividual")) {
