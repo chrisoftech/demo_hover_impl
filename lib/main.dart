@@ -133,17 +133,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    platform.setMethodCallHandler(handleMethodCall);
-  }
-
-  Future<void> handleMethodCall(MethodCall methodCall) async {
-    // handle response here
-    print(methodCall.method);
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget _buildNumberTextField() {
       return Padding(
